@@ -283,3 +283,132 @@ console.log(`
 window.addEventListener('load', () => {
   document.body.classList.add('loaded');
 });
+
+// ===== Whiplash Status Check =====
+// Base URL for Whiplash API - uses tunnel at whiplash.aralcavlak.works
+const WHIPLASH_BASE_URL = 'https://whiplash.aralcavlak.works';
+const WHIPLASH_API_URL = `${WHIPLASH_BASE_URL}/api/status`;
+
+// Service name mapping (API response key -> display name)
+const serviceNameMap = {
+  api: 'API Gateway',
+  websocket: 'WebSocket Server',
+  auth: 'Authentication',
+  docker: 'Docker Engine',
+  filesync: 'File Sync',
+  database: 'Database'
+};
+
+// Status to CSS class mapping
+const statusClassMap = {
+  operational: 'green',
+  degraded: 'yellow',
+  outage: 'red',
+  maintenance: 'yellow'
+};
+
+// Status to display text mapping
+const statusTextMap = {
+  operational: 'Operational',
+  degraded: 'Degraded',
+  outage: 'Outage',
+  maintenance: 'Maintenance'
+};
+
+async function fetchWhiplashStatus() {
+  const statusList = document.querySelector('.status-list');
+  const statusBadge = document.querySelector('.status-badge');
+  const statusFooter = document.querySelector('.status-uptime');
+
+  if (!statusList) return;
+
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+
+    const response = await fetch(WHIPLASH_API_URL, {
+      method: 'GET',
+      signal: controller.signal
+    });
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    // Update overall status badge
+    if (statusBadge) {
+      statusBadge.className = 'status-badge';
+      if (data.overall === 'operational') {
+        statusBadge.classList.add('operational');
+        statusBadge.textContent = 'All Systems Operational';
+      } else if (data.overall === 'degraded') {
+        statusBadge.classList.add('degraded');
+        statusBadge.textContent = 'Partial Outage';
+      } else {
+        statusBadge.classList.add('outage');
+        statusBadge.textContent = 'Major Outage';
+      }
+    }
+
+    // Update individual service statuses
+    statusList.innerHTML = '';
+    for (const [key, service] of Object.entries(data.services)) {
+      const displayName = serviceNameMap[key] || key;
+      const statusClass = statusClassMap[service.status] || 'yellow';
+      const statusText = statusTextMap[service.status] || 'Unknown';
+
+      const row = document.createElement('div');
+      row.className = 'status-row';
+      row.innerHTML = `
+        <span class="status-dot ${statusClass}"></span>
+        <span class="status-name">${displayName}</span>
+        <span class="status-state">${statusText}</span>
+      `;
+      statusList.appendChild(row);
+    }
+
+    // Update footer
+    if (statusFooter) {
+      const timestamp = new Date(data.timestamp);
+      statusFooter.textContent = `Last checked: ${timestamp.toLocaleTimeString()}`;
+    }
+
+  } catch (error) {
+    console.warn('Whiplash status check failed:', error.message);
+
+    // Show maintenance status for all services when API is unreachable
+    if (statusBadge) {
+      statusBadge.className = 'status-badge maintenance';
+      statusBadge.textContent = 'Under Maintenance';
+    }
+
+    const services = ['api', 'websocket', 'auth', 'docker', 'filesync', 'database'];
+    statusList.innerHTML = '';
+
+    for (const key of services) {
+      const displayName = serviceNameMap[key] || key;
+      const row = document.createElement('div');
+      row.className = 'status-row';
+      row.innerHTML = `
+        <span class="status-dot yellow"></span>
+        <span class="status-name">${displayName}</span>
+        <span class="status-state">Maintenance</span>
+      `;
+      statusList.appendChild(row);
+    }
+
+    if (statusFooter) {
+      statusFooter.textContent = 'Scheduled maintenance in progress';
+    }
+  }
+}
+
+// Fetch status on page load
+fetchWhiplashStatus();
+
+// Refresh status every 30 seconds
+setInterval(fetchWhiplashStatus, 30000);
