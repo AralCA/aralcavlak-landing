@@ -1,0 +1,8 @@
+# Cloudflare Pages Redirects
+# https://developers.cloudflare.com/pages/platform/redirects
+
+# Redirect www to non-www
+https://www.aralcavlak.works/* https://aralcavlak.works/:splat 301
+
+# Handle SPA routes (if needed in future)
+/*    /index.html   200
