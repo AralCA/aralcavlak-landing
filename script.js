@@ -28,6 +28,19 @@ themeToggle?.addEventListener('click', () => {
   }
 
   localStorage.setItem('theme', newTheme);
+
+  // Update nav background immediately
+  const nav = document.querySelector('.nav');
+  const currentScroll = window.pageYOffset;
+  const isLight = newTheme === 'light';
+
+  if (currentScroll > 50) {
+    nav.style.background = isLight ? 'rgba(250, 250, 250, 0.9)' : 'rgba(5, 5, 5, 0.9)';
+    nav.style.borderBottom = isLight ? '1px solid rgba(0, 0, 0, 0.05)' : '1px solid rgba(255, 255, 255, 0.05)';
+  } else {
+    nav.style.background = isLight ? 'linear-gradient(to bottom, rgba(250, 250, 250, 1), transparent)' : 'linear-gradient(to bottom, rgba(5, 5, 5, 1), transparent)';
+    nav.style.borderBottom = 'none';
+  }
 });
 
 // ===== Smooth Scroll =====
@@ -108,13 +121,14 @@ let lastScroll = 0;
 
 window.addEventListener('scroll', () => {
   const currentScroll = window.pageYOffset;
+  const isLight = html.getAttribute('data-theme') === 'light';
 
   if (currentScroll > 50) {
-    nav.style.background = 'rgba(5, 5, 5, 0.9)';
+    nav.style.background = isLight ? 'rgba(250, 250, 250, 0.9)' : 'rgba(5, 5, 5, 0.9)';
     nav.style.backdropFilter = 'blur(10px)';
-    nav.style.borderBottom = '1px solid rgba(255, 255, 255, 0.05)';
+    nav.style.borderBottom = isLight ? '1px solid rgba(0, 0, 0, 0.05)' : '1px solid rgba(255, 255, 255, 0.05)';
   } else {
-    nav.style.background = 'linear-gradient(to bottom, rgba(5, 5, 5, 1), transparent)';
+    nav.style.background = isLight ? 'linear-gradient(to bottom, rgba(250, 250, 250, 1), transparent)' : 'linear-gradient(to bottom, rgba(5, 5, 5, 1), transparent)';
     nav.style.backdropFilter = 'none';
     nav.style.borderBottom = 'none';
   }
