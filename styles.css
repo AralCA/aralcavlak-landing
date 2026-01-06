@@ -116,6 +116,53 @@
   color: #ffffff;
 }
 
+[data-theme="light"] .gradient-text,
+[data-theme="light"] .logo-text,
+[data-theme="light"] .whiplash-title,
+[data-theme="light"] .contact-email,
+[data-theme="light"] .private-repos-title,
+[data-theme="light"] .stat-value {
+  background: linear-gradient(135deg, #a34a2d, #c45d3a);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+[data-theme="light"] .nav {
+  background: linear-gradient(to bottom, var(--bg-primary), transparent);
+}
+
+[data-theme="light"] .code-window {
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .window-header {
+  background: var(--bg-tertiary);
+}
+
+[data-theme="light"] .hero-badge {
+  background: var(--bg-tertiary);
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .btn-secondary {
+  border-color: rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="light"] .btn-secondary:hover {
+  background: rgba(0, 0, 0, 0.05);
+  border-color: rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="light"] .skill-tags span {
+  background: var(--bg-tertiary);
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .footer {
+  border-top-color: rgba(0, 0, 0, 0.05);
+}
+
 /* ===== Reset & Base ===== */
 *, *::before, *::after {
   box-sizing: border-box;
